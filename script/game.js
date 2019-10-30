@@ -29,21 +29,22 @@ var cursors;
 var speedSpatialShip = 5;
 var shoot = null;
 var ennemy;
+var ennemyBonus;
 var startShoot = 0;
 var endShoot = 0;
 var score;
 var scoreText;
-var numberOfEnnemyByRow = 6;
-var numberOfEnnemyByColumn = 5;
 var gameOver;
 var restartGame;
 var instance;
+var bonus;
 
 // on charge images & sons
 function preload() {
     this.load.image('spatialShip', 'img/spatialShip.png');
     this.load.image('shoot', 'img/shoot.png');
     this.load.image('ennemy', 'img/ennemy.png');
+    this.load.image('ennemyBonus', 'img/ennemyBonus.png');
     this.load.image('gameOver', 'img/game_over.png');
     this.load.image('restartGame', 'img/restart.png');
 }
@@ -86,10 +87,22 @@ function AddEnnemy(){
 // create X ennemies
 function newRowOfEnnemies(){
     ennemy = instance.physics.add.group();
+    ennemyBonus = instance.physics.add.group();
+    var bonus = Phaser.Math.Between(1,5);
+    var elementBonus = new Array(bonus);
+    for (let index = 0; index < bonus; index++) {
+        elementBonus.push(Phaser.Math.Between(1,5));
+    }
+
     for (let i = 0; i < 5; i++) {
-        ennemy.create(200+(50*i), 50, 'ennemy');
+        if(elementBonus.includes(i)){
+            ennemyBonus.create(200+(50*i), 50, 'ennemyBonus');
+        }else{
+            ennemy.create(200+(50*i), 50, 'ennemy');
+        }
     }
     ennemy.setVelocityY(50);
+    ennemyBonus.setVelocityY(50);
 }
 
 // boucle principale du jeu
@@ -104,6 +117,8 @@ function update() {
 
         //  Our colliders
         this.physics.add.collider(spatialShip, ennemy, GameOver, null, this);
+        this.physics.add.collider(spatialShip, ennemyBonus, GameOver, null, this);
+        this.physics.add.collider(shoot, ennemyBonus, GainPoint, null, this);
         this.physics.add.collider(shoot, ennemy, GainPoint, null, this);
     }
 }
@@ -127,7 +142,6 @@ function GainPoint(shoot,ennemy) {
 }
 
 function GameOver(ship,ennemy) {
-        console.log("stop");
         // add the image gameover
         gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
         
