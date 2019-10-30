@@ -86,21 +86,29 @@ function AddEnnemy(){
 
 // create X ennemies
 function newRowOfEnnemies(){
+    // create group of differents ennemy
     ennemy = instance.physics.add.group();
     ennemyBonus = instance.physics.add.group();
-    var bonus = Phaser.Math.Between(1,5);
+
+    // check number of ennemies bonus by row
+    var bonus = Phaser.Math.Between(1,6);
     var elementBonus = new Array(bonus);
     for (let index = 0; index < bonus; index++) {
-        elementBonus.push(Phaser.Math.Between(1,5));
+        elementBonus.push(Phaser.Math.Between(1,6));
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
+        // if the cell correspond to a bonusEnnemy
         if(elementBonus.includes(i)){
-            ennemyBonus.create(200+(50*i), 50, 'ennemyBonus');
+            // add an ennemy bonus
+            ennemyBonus.create(170+(50*i), 50, 'ennemyBonus');
         }else{
-            ennemy.create(200+(50*i), 50, 'ennemy');
+            // add an ennemy
+            ennemy.create(170+(50*i), 50, 'ennemy');
         }
     }
+
+    // the ennemies go down
     ennemy.setVelocityY(50);
     ennemyBonus.setVelocityY(50);
 }
@@ -123,14 +131,7 @@ function update() {
     }
 }
 
-function Collide() {
-    //if a shoot touch an ennemy
-    GainPoint();
-
-    // check if the game is over
-    GameOver();
-}
-
+//if a shoot touch an ennemy
 function GainPoint(shoot,ennemy) {
     // disable shoot and ennemy touch
     shoot.disableBody(true,true);
@@ -141,6 +142,7 @@ function GainPoint(shoot,ennemy) {
     scoreText.setText(score);
 }
 
+// check if the ship touch an ennemy
 function GameOver(ship,ennemy) {
         // add the image gameover
         gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
