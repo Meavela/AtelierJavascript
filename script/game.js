@@ -37,6 +37,7 @@ var numberOfEnnemyByRow = 6;
 var numberOfEnnemyByColumn = 5;
 var gameOver;
 var restartGame;
+var instance;
 
 // on charge images & sons
 function preload() {
@@ -49,30 +50,51 @@ function preload() {
 
 // initialisation variables, affichages...
 function create() {
-    spatialShip = this.physics.add.sprite(300, 500, 'spatialShip');
+    instance = this;
+    // set the bounds
+    this.physics.world.setBoundsCollision(true, true, true, true);
+
+    // create spatial ship
+    spatialShip = this.physics.add.sprite(300, 500, 'spatialShip').setCollideWorldBounds(true).setBounce(1);;
     spatialShip.alive = true;
-    AddEnnemy(this);
+
+    // add X ennemies
+    AddEnnemy();
+
+    // get cursors
     cursors = this.input.keyboard.createCursorKeys();
+
+    // add score
     let style = { font: '20px Arial', fill: '#fff' };
     score = 0;
     scoreText = this.add.text(20, 20, score, style);
+
+    // create group of shoot
     shoot = this.physics.add.group();
 }
 
-function AddEnnemy(scene){
-    ennemy = scene.physics.add.group();
-    for (let i = 0; i < numberOfEnnemyByColumn; i++) {
-        for (let j = 0; j < numberOfEnnemyByRow; j++) {
-            ennemy.create(70+(50*i), 70+(50*j), 'ennemy');
-        }
-        
-    }
+// add row of ennemies x times
+function AddEnnemy(){
+    instance.time.addEvent({
+        delay:3000,
+        callback: newRowOfEnnemies,
+        callbackScope: instance,
+        loop: true
+    });
 }
 
-var instance;
+// create X ennemies
+function newRowOfEnnemies(){
+    ennemy = instance.physics.add.group();
+    for (let i = 0; i < 5; i++) {
+        ennemy.create(200+(50*i), 50, 'ennemy');
+    }
+    ennemy.setVelocityY(50);
+}
+
 // boucle principale du jeu
 function update() {
-    instance = this;
+    // if is not game over
     if (spatialShip.alive) {
         // move the spatial ship
         Move();
@@ -80,10 +102,9 @@ function update() {
         // shoot with the spatial ship
         Shooting();
 
-        // if a shoot is on the board
-        if (shoot != null) {
-            Collide();
-        }
+        //  Our colliders
+        this.physics.add.collider(spatialShip, ennemy, GameOver, null, this);
+        this.physics.add.collider(shoot, ennemy, GainPoint, null, this);
     }
 }
 
@@ -95,36 +116,34 @@ function Collide() {
     GameOver();
 }
 
-function GainPoint() {
-    if (instance.physics.collide(shoot, ennemy)) {
-        shoot.children.iterate(childShoot => {
-            ennemy.children.iterate(childEnnemy => {
-                if (childEnnemy && childShoot) {
-                    if(childShoot.x <= childEnnemy.x+30 && childEnnemy.x-30 <= childShoot.x && childEnnemy.y-30 <= childShoot.y && childShoot.y <= childEnnemy.y+30){
-                        // destroy the both
-                        childShoot.destroy();
-                        childEnnemy.destroy();
-                        score += 1;
-                        scoreText.setText(score);
-                    }
-                }
-            });
-        });
-    }
+function GainPoint(shoot,ennemy) {
+    // disable shoot and ennemy touch
+    shoot.disableBody(true,true);
+    ennemy.disableBody(true,true);
+
+    // add 1 to the score
+    score += 1;
+    scoreText.setText(score);
 }
 
-function GameOver() {
-    if (instance.physics.collide(spatialShip, ennemy)) {
+function GameOver(ship,ennemy) {
+        console.log("stop");
+        // add the image gameover
         gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
+        
+        // add the image restart
         restartGame = instance.physics.add.sprite(300, 500, 'restartGame');
         restartGame.setInteractive();
+        
+        // block the movements of the spatial ship
         spatialShip.alive = false;
+        
+        // display the score
         let style={font: 'bold 30px Arial', fill: '#0000ff'};
         scoreText = instance.add.text(230, 420, "SCORE : "+score, style);
 
+        // if click on the restart image, restart the game
         instance.input.on('gameobjectdown', function(){instance.scene.restart();});
-        // instance.scene.restart()
-    }
 }
 
 function Shooting() {
@@ -145,30 +164,18 @@ function Shooting() {
 function Move() {
     // if key left is down
     if (cursors.left.isDown) {
-        // check if the spatial ship is not out of bounds
-        if (spatialShip.x > 15) {
-            spatialShip.x -= speedSpatialShip;
-        }
+        spatialShip.x -= speedSpatialShip;
     }
     // if key right is down
     if (cursors.right.isDown) {
-        // check if the spatial ship is not out of bounds
-        if (spatialShip.x < width - 15) {
-            spatialShip.x += speedSpatialShip;
-        }
+        spatialShip.x += speedSpatialShip;  
     }
     // if key up is down
     if (cursors.up.isDown) {
-        // check if the spatial ship is not out of bounds
-        if (spatialShip.y > 15) {
-            spatialShip.y -= speedSpatialShip;
-        }
+        spatialShip.y -= speedSpatialShip;
     }
     // if key down is down
     if (cursors.down.isDown) {
-        // check if the spatial ship is not out of bounds
-        if (spatialShip.y < height - 15) {
-            spatialShip.y += speedSpatialShip;
-        }
+        spatialShip.y += speedSpatialShip;
     }
 }
