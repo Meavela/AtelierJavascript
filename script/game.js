@@ -140,6 +140,14 @@ function update() {
     }
 }
 
+function ColliderBetweenShootAndBound(){
+    shoots.children.iterate(function(sh){
+        if (sh.y >= 10) {
+            sh.disableBody(true,true);
+        }
+    });
+}
+
 function ColliderBetweenEnnemyAndBound(){
     ennemies.children.iterate(function (el) {
         if (el.y >= height - 10) {
