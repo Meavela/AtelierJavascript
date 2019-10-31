@@ -76,6 +76,10 @@ function create() {
 
     // create group of shoot
     shoots = this.physics.add.group();
+
+    // create group of differents ennemy
+    ennemies = instance.physics.add.group();
+    ennemiesBonus = instance.physics.add.group();
 }
 
 // add row of ennemies x times
@@ -91,10 +95,6 @@ function AddEnnemy(){
 // create X ennemies
 function newRowOfEnnemies(){
     if(spatialShip.alive){
-        // create group of differents ennemy
-        ennemies = instance.physics.add.group();
-        ennemiesBonus = instance.physics.add.group();
-
         // check number of ennemies bonus by row
         var bonus = Phaser.Math.Between(1,6);
         var elementBonus = new Array(bonus);
@@ -151,36 +151,33 @@ function GainPoint(shoot,ennemy) {
 
 // check if the ship touch an ennemy
 function GameOver(ship,ennemy) {
-    console.log(genereEnnemies);
-        // add the image gameover
-        gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
-        
-        // add the image restart
-        restartGame = instance.physics.add.sprite(300, 500, 'restartGame');
-        restartGame.setInteractive();
-        
-        // block the movements of the spatial ship
-        spatialShip.alive = false;
-        
-        // display the score
-        let style={font: 'bold 30px Arial', fill: '#0000ff'};
-        scoreText = instance.add.text(230, 420, "SCORE : "+score, style);
+    // add the image gameover
+    gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
+    
+    // add the image restart
+    restartGame = instance.physics.add.sprite(300, 500, 'restartGame');
+    restartGame.setInteractive();
+    
+    // block the movements of the spatial ship
+    spatialShip.alive = false;
+    
+    // display the score
+    let style={font: 'bold 30px Arial', fill: '#0000ff'};
+    scoreText = instance.add.text(230, 420, "SCORE : "+score, style);
 
-        // disable all ennemies
-        ennemies.children.iterate(function (el) {
-            // ennemies.killAndHide(el);
-            el.disableBody(true,true);
-        });
-        ennemiesBonus.children.iterate(function (el) {
-            // ennemiesBonus.killAndHide(el);
-            el.disableBody(true,true);
-        });
+    // disable all ennemies
+    ennemies.children.iterate(function (el) {
+        el.disableBody(true,true);
+    });
+    ennemiesBonus.children.iterate(function (el) {
+        el.disableBody(true,true);
+    });
 
-        // disable the spatial ship
-        spatialShip.disableBody(true,true);
+    // disable the spatial ship
+    spatialShip.disableBody(true,true);
 
-        // if click on the restart image, restart the game
-        instance.input.on('gameobjectdown', function(){instance.scene.restart();});
+    // if click on the restart image, restart the game
+    instance.input.on('gameobjectdown', function(){instance.scene.restart();});
 }
 
 function Shooting() {
