@@ -151,6 +151,7 @@ function update() {
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
         ColliderBetweenEnnemyAndBound();
         ColliderBetweenShootAndBound();
+        ColliderBetweenBonusAndBound();
     }
 }
 
@@ -202,6 +203,17 @@ function ColliderBetweenShootAndBound(){
         if (sh.y <= 10) {
             // disable the shoot
             sh.disableBody(true,true);
+        }
+    });
+}
+
+// when a bonus touch the down bound
+function ColliderBetweenBonusAndBound(){
+    // if the bonus touch the bound
+    bonus.children.iterate(function(bo){
+        if (bo.y >= height - 10) {
+            // disable the bonus
+            bo.disableBody(true,true);
         }
     });
 }
@@ -268,7 +280,7 @@ function GameOver() {
     gameOver = instance.physics.add.sprite(300, 200, 'gameOver');
     
     // add the image restart
-    restartGame = instance.physics.add.sprite(300, 400, 'restartGame');
+    restartGame = instance.physics.add.sprite(300, 450, 'restartGame');
     restartGame.setInteractive();
     
     // block the movements of the spatial ship
