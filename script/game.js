@@ -149,13 +149,16 @@ function update() {
         this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
-    
         ColliderBetweenEnnemyAndBound();
+        ColliderBetweenShootAndBound();
     }
 }
 
+// when the ship touch the bonus
 function GainBonus(ship,bonus){
     ship.setVelocityY(0);
+
+    // get which bonus is touch
     switch (bonus.texture.key) {
         case "bonusSpeedShoot":
             BonusSpeedShoot();
@@ -167,9 +170,12 @@ function GainBonus(ship,bonus){
             BonusSpeedShip();
             break;
     }
+
+    // disable the bonus
     bonus.disableBody(true,true);
 }
 
+// when the bonus is a speed shoot
 function BonusSpeedShoot(){
     speedShoot = speedShoot+200;
     if(speedShoot == speedShootStart+500 && waitShoot != 500){
@@ -177,32 +183,43 @@ function BonusSpeedShoot(){
     }
 }
 
+// when the bonus is an add shoot
 function BonusAddShoot(){
-    if (numberOfShoots < 2) {
+    if (numberOfShoots < 5) {
         numberOfShoots += 1;
     }
 }
 
+// when the bonus is a speed ship
 function BonusSpeedShip(){
     speedSpatialShip += 1;
 }
 
+// when a shoot touch the up bound
 function ColliderBetweenShootAndBound(){
+    // if the shoot touch the bound
     shoots.children.iterate(function(sh){
-        if (sh.y >= 10) {
+        if (sh.y <= 10) {
+            // disable the shoot
             sh.disableBody(true,true);
         }
     });
 }
 
+// when an ennemy touch the down bound
 function ColliderBetweenEnnemyAndBound(){
+    // if an ennemy touch the bound
     ennemies.children.iterate(function (el) {
         if (el.y >= height - 10) {
+            // game over
             GameOver();
         }
     });
+
+    // if an ennemy bonus touch the bound
     ennemiesBonus.children.iterate(function (el) {
         if (el.y >= height - 10) {
+            // game over
             GameOver();
         }
     });
@@ -210,8 +227,9 @@ function ColliderBetweenEnnemyAndBound(){
 
 //if a shoot touch an ennemy
 function GainPoint(shoot,ennemy) {
-    // disable shoot and ennemy touch
+    // if it's an ennemy bonus which is touch
     if(ennemy.texture.key == "ennemyBonus"){
+        // get randomly the bonus choose
         var random = Phaser.Math.Between(1,3);
         switch (random) {
             case 1:
@@ -226,6 +244,7 @@ function GainPoint(shoot,ennemy) {
             default:
                 break;
         }
+        // bonus go down
         bonus.setVelocityY(400);
 
         // add 2 to the score
@@ -235,9 +254,11 @@ function GainPoint(shoot,ennemy) {
         score += 1;
     }
 
+    // disable shoot and ennemy touch
     shoot.disableBody(true,true);
     ennemy.disableBody(true,true);
 
+    // set the score
     scoreText.setText(score);      
 }
 
@@ -265,6 +286,11 @@ function GameOver() {
         el.disableBody(true,true);
     });
 
+    // disable all Bonus
+    bonus.children.iterate(function (bo) {
+        bo.disableBody(true,true);
+    });
+
     // disable the spatial ship
     spatialShip.disableBody(true,true);
 
@@ -272,6 +298,7 @@ function GameOver() {
     instance.input.on('gameobjectdown', function(){instance.scene.restart();});
 }
 
+// when the ship shoot
 function Shooting() {
     // if key space is down
     if (cursors.space.isDown) {
@@ -280,7 +307,6 @@ function Shooting() {
         if (endShoot > startShoot + waitShoot) {
             startShoot = new Date().getTime();
             // add a sprite shoot
-            console.log("shoot");
             for (let i = 0; i < numberOfShoots; i++) {
                 shoots.create(spatialShip.x-(10*i), spatialShip.y - (30), 'shoot');
             }
@@ -290,6 +316,7 @@ function Shooting() {
     }
 }
 
+// move the spatial ship
 function Move() {
     // if key left is down
     if (cursors.left.isDown) {
