@@ -27,7 +27,12 @@ var game = new Phaser.Game(config);
 var spatialShip;
 var cursors;
 var speedSpatialShip = 5;
+var speedShootStart = 400;
+var speedShoot = speedShootStart;
+var waitShootStart = 700;
+var waitShoot = waitShootStart;
 var shoots;
+var numberOfShoots = 1;
 var ennemies;
 var ennemiesBonus;
 var genereEnnemies;
@@ -48,14 +53,21 @@ function preload() {
     this.load.image('ennemyBonus', 'img/ennemyBonus.png');
     this.load.image('gameOver', 'img/game_over.png');
     this.load.image('restartGame', 'img/restart.png');
+    this.load.image('bonusSpeedShoot', 'img/bonusSpeedShoot.png');
+    this.load.image('bonusSpeedShip', 'img/bonusSpeedShip.png');
+    this.load.image('bonusAddShoot', 'img/bonusAddShoot.png');
 }
 
 // initialisation variables, affichages...
 function create() {
     instance = this;
+    numberOfShoots = 1;
     spatialShip = null;
     ennemies = null;
     ennemiesBonus = null;
+    bonus = null;
+    waitShoot = waitShootStart;
+    speedShoot = speedShootStart;
     // set the bounds
     this.physics.world.setBoundsCollision(true, true, true, true);
 
@@ -80,6 +92,7 @@ function create() {
     // create group of differents ennemy
     ennemies = instance.physics.add.group();
     ennemiesBonus = instance.physics.add.group();
+    bonus = instance.physics.add.group();
 }
 
 // add row of ennemies x times
@@ -114,8 +127,8 @@ function newRowOfEnnemies(){
         }
 
         // the ennemies go down
-        ennemies.setVelocityY(50);
-        ennemiesBonus.setVelocityY(50);
+        ennemies.setVelocityY(40);
+        ennemiesBonus.setVelocityY(40);
     }
     
 }
@@ -133,11 +146,45 @@ function update() {
         //  colliders
         this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
+        this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
     
         ColliderBetweenEnnemyAndBound();
     }
+}
+
+function GainBonus(ship,bonus){
+    ship.setVelocityY(0);
+    switch (bonus.texture.key) {
+        case "bonusSpeedShoot":
+            BonusSpeedShoot();
+            break;
+        case "bonusAddShoot":
+            BonusAddShoot();
+            break;
+        case "bonusSpeedShip":
+            BonusSpeedShip();
+            break;
+    }
+    bonus.disableBody(true,true);
+}
+
+function BonusSpeedShoot(){
+    speedShoot = speedShoot+200;
+    if(speedShoot == speedShootStart+500 && waitShoot != 500){
+        waitShoot = waitShoot-200;
+    }
+}
+
+function BonusAddShoot(){
+    if (numberOfShoots < 2) {
+        numberOfShoots += 1;
+    }
+}
+
+function BonusSpeedShip(){
+    speedSpatialShip += 1;
 }
 
 function ColliderBetweenShootAndBound(){
@@ -164,12 +211,34 @@ function ColliderBetweenEnnemyAndBound(){
 //if a shoot touch an ennemy
 function GainPoint(shoot,ennemy) {
     // disable shoot and ennemy touch
+    if(ennemy.texture.key == "ennemyBonus"){
+        var random = Phaser.Math.Between(1,3);
+        switch (random) {
+            case 1:
+                bonus.create(ennemy.x, ennemy.y, 'bonusSpeedShoot');
+                break;
+            case 2:
+                bonus.create(ennemy.x, ennemy.y, 'bonusAddShoot');
+                break;
+            case 3:
+                bonus.create(ennemy.x, ennemy.y, 'bonusSpeedShip');
+                break;
+            default:
+                break;
+        }
+        bonus.setVelocityY(400);
+
+        // add 2 to the score
+        score += 2;
+    }else{
+        // add 1 to the score
+        score += 1;
+    }
+
     shoot.disableBody(true,true);
     ennemy.disableBody(true,true);
 
-    // add 1 to the score
-    score += 1;
-    scoreText.setText(score);
+    scoreText.setText(score);      
 }
 
 // check if the ship touch an ennemy
@@ -208,12 +277,15 @@ function Shooting() {
     if (cursors.space.isDown) {
         endShoot = new Date().getTime();
         // if 200ms are passed since next time ship shoot
-        if (endShoot > startShoot + 1000) {
+        if (endShoot > startShoot + waitShoot) {
             startShoot = new Date().getTime();
             // add a sprite shoot
-            shoots.create(spatialShip.x, spatialShip.y - 30, 'shoot');
+            console.log("shoot");
+            for (let i = 0; i < numberOfShoots; i++) {
+                shoots.create(spatialShip.x-(10*i), spatialShip.y - (30), 'shoot');
+            }
             // sprite go to the up
-            shoots.setVelocityY(-400);
+            shoots.setVelocityY(-speedShoot);
         }
     }
 }
@@ -226,13 +298,5 @@ function Move() {
     // if key right is down
     if (cursors.right.isDown) {
         spatialShip.x += speedSpatialShip;  
-    }
-    // if key up is down
-    if (cursors.up.isDown) {
-        spatialShip.y -= speedSpatialShip;
-    }
-    // if key down is down
-    if (cursors.down.isDown) {
-        spatialShip.y += speedSpatialShip;
     }
 }
