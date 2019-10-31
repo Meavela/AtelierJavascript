@@ -27,9 +27,10 @@ var game = new Phaser.Game(config);
 var spatialShip;
 var cursors;
 var speedSpatialShip = 5;
-var shoot = null;
-var ennemy;
-var ennemyBonus;
+var shoots;
+var ennemies;
+var ennemiesBonus;
+var genereEnnemies;
 var startShoot = 0;
 var endShoot = 0;
 var score;
@@ -52,6 +53,9 @@ function preload() {
 // initialisation variables, affichages...
 function create() {
     instance = this;
+    spatialShip = null;
+    ennemies = null;
+    ennemiesBonus = null;
     // set the bounds
     this.physics.world.setBoundsCollision(true, true, true, true);
 
@@ -71,12 +75,12 @@ function create() {
     scoreText = this.add.text(20, 20, score, style);
 
     // create group of shoot
-    shoot = this.physics.add.group();
+    shoots = this.physics.add.group();
 }
 
 // add row of ennemies x times
 function AddEnnemy(){
-    instance.time.addEvent({
+    genereEnnemies = instance.time.addEvent({
         delay:3000,
         callback: newRowOfEnnemies,
         callbackScope: instance,
@@ -86,31 +90,34 @@ function AddEnnemy(){
 
 // create X ennemies
 function newRowOfEnnemies(){
-    // create group of differents ennemy
-    ennemy = instance.physics.add.group();
-    ennemyBonus = instance.physics.add.group();
+    if(spatialShip.alive){
+        // create group of differents ennemy
+        ennemies = instance.physics.add.group();
+        ennemiesBonus = instance.physics.add.group();
 
-    // check number of ennemies bonus by row
-    var bonus = Phaser.Math.Between(1,6);
-    var elementBonus = new Array(bonus);
-    for (let index = 0; index < bonus; index++) {
-        elementBonus.push(Phaser.Math.Between(1,6));
-    }
-
-    for (let i = 0; i < 6; i++) {
-        // if the cell correspond to a bonusEnnemy
-        if(elementBonus.includes(i)){
-            // add an ennemy bonus
-            ennemyBonus.create(170+(50*i), 50, 'ennemyBonus');
-        }else{
-            // add an ennemy
-            ennemy.create(170+(50*i), 50, 'ennemy');
+        // check number of ennemies bonus by row
+        var bonus = Phaser.Math.Between(1,6);
+        var elementBonus = new Array(bonus);
+        for (let index = 0; index < bonus; index++) {
+            elementBonus.push(Phaser.Math.Between(1,6));
         }
-    }
 
-    // the ennemies go down
-    ennemy.setVelocityY(50);
-    ennemyBonus.setVelocityY(50);
+        for (let i = 0; i < 6; i++) {
+            // if the cell correspond to a bonusEnnemy
+            if(elementBonus.includes(i)){
+                // add an ennemy bonus
+                ennemiesBonus.create(170+(50*i), 50, 'ennemyBonus');
+            }else{
+                // add an ennemy
+                ennemies.create(170+(50*i), 50, 'ennemy');
+            }
+        }
+
+        // the ennemies go down
+        ennemies.setVelocityY(50);
+        ennemiesBonus.setVelocityY(50);
+    }
+    
 }
 
 // boucle principale du jeu
@@ -123,11 +130,11 @@ function update() {
         // shoot with the spatial ship
         Shooting();
 
-        //  Our colliders
-        this.physics.add.collider(spatialShip, ennemy, GameOver, null, this);
-        this.physics.add.collider(spatialShip, ennemyBonus, GameOver, null, this);
-        this.physics.add.collider(shoot, ennemyBonus, GainPoint, null, this);
-        this.physics.add.collider(shoot, ennemy, GainPoint, null, this);
+        //  colliders
+        this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
+        this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
+        this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
+        this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
     }
 }
 
@@ -144,6 +151,7 @@ function GainPoint(shoot,ennemy) {
 
 // check if the ship touch an ennemy
 function GameOver(ship,ennemy) {
+    console.log(genereEnnemies);
         // add the image gameover
         gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
         
@@ -158,6 +166,19 @@ function GameOver(ship,ennemy) {
         let style={font: 'bold 30px Arial', fill: '#0000ff'};
         scoreText = instance.add.text(230, 420, "SCORE : "+score, style);
 
+        // disable all ennemies
+        ennemies.children.iterate(function (el) {
+            // ennemies.killAndHide(el);
+            el.disableBody(true,true);
+        });
+        ennemiesBonus.children.iterate(function (el) {
+            // ennemiesBonus.killAndHide(el);
+            el.disableBody(true,true);
+        });
+
+        // disable the spatial ship
+        spatialShip.disableBody(true,true);
+
         // if click on the restart image, restart the game
         instance.input.on('gameobjectdown', function(){instance.scene.restart();});
 }
@@ -167,12 +188,12 @@ function Shooting() {
     if (cursors.space.isDown) {
         endShoot = new Date().getTime();
         // if 200ms are passed since next time ship shoot
-        if (endShoot > startShoot + 200) {
+        if (endShoot > startShoot + 1000) {
             startShoot = new Date().getTime();
             // add a sprite shoot
-            shoot.create(spatialShip.x, spatialShip.y - 30, 'shoot');
+            shoots.create(spatialShip.x, spatialShip.y - 30, 'shoot');
             // sprite go to the up
-            shoot.setVelocityY(-500);
+            shoots.setVelocityY(-400);
         }
     }
 }
