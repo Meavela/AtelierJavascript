@@ -135,7 +135,22 @@ function update() {
         this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
+    
+        ColliderBetweenEnnemyAndBound();
     }
+}
+
+function ColliderBetweenEnnemyAndBound(){
+    ennemies.children.iterate(function (el) {
+        if (el.y >= height - 10) {
+            GameOver();
+        }
+    });
+    ennemiesBonus.children.iterate(function (el) {
+        if (el.y >= height - 10) {
+            GameOver();
+        }
+    });
 }
 
 //if a shoot touch an ennemy
@@ -150,12 +165,12 @@ function GainPoint(shoot,ennemy) {
 }
 
 // check if the ship touch an ennemy
-function GameOver(ship,ennemy) {
+function GameOver() {
     // add the image gameover
-    gameOver = instance.physics.add.sprite(300, 300, 'gameOver');
+    gameOver = instance.physics.add.sprite(300, 200, 'gameOver');
     
     // add the image restart
-    restartGame = instance.physics.add.sprite(300, 500, 'restartGame');
+    restartGame = instance.physics.add.sprite(300, 400, 'restartGame');
     restartGame.setInteractive();
     
     // block the movements of the spatial ship
@@ -163,7 +178,7 @@ function GameOver(ship,ennemy) {
     
     // display the score
     let style={font: 'bold 30px Arial', fill: '#0000ff'};
-    scoreText = instance.add.text(230, 420, "SCORE : "+score, style);
+    scoreText = instance.add.text(230, 320, "SCORE : "+score, style);
 
     // disable all ennemies
     ennemies.children.iterate(function (el) {
