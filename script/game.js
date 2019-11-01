@@ -63,6 +63,7 @@ function create() {
     instance = this;
     numberOfShoots = 1;
     spatialShip = null;
+    speedSpatialShip = 5;
     ennemies = null;
     ennemiesBonus = null;
     bonus = null;
