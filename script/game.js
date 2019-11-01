@@ -1,6 +1,21 @@
 var height = 600;
 var width = 600;
 
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyDUhVjxB27hiHnvRIXsLcOUZLeA5Iw4RUQ",
+    authDomain: "atelierjavascript.firebaseapp.com",
+    databaseURL: "https://atelierjavascript.firebaseio.com",
+    projectId: "atelierjavascript",
+    storageBucket: "atelierjavascript.appspot.com",
+    messagingSenderId: "56466323023",
+    appId: "1:56466323023:web:2aa21dc26c389808251c3a",
+    measurementId: "G-XC4P6JDDX3"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+
 var config = {
     width: width,
     height: height,
@@ -24,6 +39,7 @@ var config = {
 
 // Variables globales
 var game = new Phaser.Game(config);
+var db = firebase.firestore();
 var spatialShip;
 var cursors;
 var speedSpatialShip = 5;
@@ -72,6 +88,8 @@ function create() {
     bonus = null;
     waitShoot = waitShootStart;
     speedShoot = speedShootStart;
+
+    ReadData();
 
     // set the bounds
     this.physics.world.setBoundsCollision(true, true, true, true);
@@ -322,6 +340,27 @@ function GameOver() {
 }
 
 function AddScore(){
+    
+    var person = GetPerson();
+
+    var timePlay = GetTimePlay();
+
+    AddData(person,timePlay,score);
+
+    ReadData();
+}
+
+function GetPerson(){
+    var person = prompt("Please enter your name", "Anonyme");
+
+    if (person == null || person == "") {
+        person = "Anonyme"
+    }
+
+    return person;
+}
+
+function GetTimePlay(){
     var endGame = new Date().getTime();
 
     // get total seconds between the times
@@ -342,12 +381,6 @@ function AddScore(){
     // what's left is seconds
     var seconds = parseInt(delta % 60);  // in theory the modulus is not required
 
-    var person = prompt("Please enter your name", "Anonyme");
-
-    if (person == null || person == "") {
-        person = "Anonyme"
-    }
-
     var timePlay = "";
     if (hours != 0) {
         timePlay += hours+"h ";
@@ -357,38 +390,48 @@ function AddScore(){
     }
     timePlay += seconds+"s ";
 
-    scores.push([person,timePlay,score]);
+    return timePlay;
+}
 
+function AddData(person,timePlay,score){
+    db.collection("scores").add({
+        name: person,
+        timePlay: timePlay,
+        score: score
+    })
+    .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+}
+
+function ReadData(){
     $( "#displayScore" ).remove();
 
     var tbody = '<tbody id="displayScore"></tbody>';
     
     $("#scores").append(tbody);
-
-    var result = "";
-    scores.sort(SortPlayersScore);
+    
     var count = 1;
-    scores.forEach(element => {
-        result += '<tr><th scope="row">'+count+'</th>';
-        element.forEach(col => {
-            result += '<td>'+col+'</td>';
+    db.collection("scores").orderBy("score", "desc").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            if(doc != null){
+                var datas = doc.data();
+                var result = "";
+                result += '<tr><th scope="row">'+count+'</th>';
+                result += '<td>'+datas.name+'</td>';
+                result += '<td>'+datas.timePlay+'</td>';
+                result += '<td>'+datas.score+'</td>';
+                result += '</tr>';
+    
+                count++;
+                $("#displayScore").append(result);
+            }
+            
         });
-        result += '</tr>';
-        count++;
     });
-    $("#displayScore").append(result);
-}
-
-function SortPlayersScore(a,b){
-    if (parseInt(a[2]) === parseInt(b[2])) {
-        if(parseInt(a[1]) === parseInt(b[1])){
-            return 0;
-        }
-        return (parseInt(a[1]) < parseInt(b[1])) ? -1 : 1;
-    }
-    else {
-        return (parseInt(a[2]) > parseInt(b[2])) ? -1 : 1;
-    }
 }
 
 // when the ship shoot
