@@ -191,7 +191,7 @@ function BonusSpeedShoot(){
 
 // when the bonus is an add shoot
 function BonusAddShoot(){
-    if (numberOfShoots < 5) {
+    if (numberOfShoots < 4) {
         numberOfShoots += 1;
     }
 }
@@ -332,15 +332,15 @@ function AddScore(){
     delta -= days * 86400;
 
     // calculate (and subtract) whole hours
-    var hours = Math.floor(delta / 3600) % 24;
+    var hours = parseInt(Math.floor(delta / 3600) % 24);
     delta -= hours * 3600;
 
     // calculate (and subtract) whole minutes
-    var minutes = Math.floor(delta / 60) % 60;
+    var minutes = parseInt(Math.floor(delta / 60) % 60);
     delta -= minutes * 60;
 
     // what's left is seconds
-    var seconds = delta % 60;  // in theory the modulus is not required
+    var seconds = parseInt(delta % 60);  // in theory the modulus is not required
 
     var person = prompt("Please enter your name", "Anonyme");
 
@@ -367,12 +367,14 @@ function AddScore(){
 
     var result = "";
     scores.sort(SortPlayersScore);
+    var count = 1;
     scores.forEach(element => {
-        result += '<tr>';
+        result += '<tr><th scope="row">'+count+'</th>';
         element.forEach(col => {
             result += '<td>'+col+'</td>';
         });
         result += '</tr>';
+        count++;
     });
     $("#displayScore").append(result);
 }
