@@ -10,10 +10,31 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.19.0/phaser.min.js"/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.19.0/phaser.js"/></script>
         <script type="text/javascript" src="script/game.js"/></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </head>
     <body>
         <br>
         <div id="game">
+        </div>
+        <br>
+        <div style="width: 600px;
+                                margin: auto;
+                                text-align: center;">
+            <h2 style="border: 3px solid red;
+                       padding: 10px;">Scores</h2>
+            <table class="table" id="scores">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Time Play</th>
+                        <th scope="col">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="displayScore">
+                </tbody>
+            </table>
         </div>
     </body>
 </html>

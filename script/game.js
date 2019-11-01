@@ -44,6 +44,8 @@ var gameOver;
 var restartGame;
 var instance;
 var bonus;
+var startGame = 0;
+var scores = [];
 
 // on charge images & sons
 function preload() {
@@ -60,6 +62,7 @@ function preload() {
 
 // initialisation variables, affichages...
 function create() {
+    startGame = new Date().getTime();
     instance = this;
     numberOfShoots = 1;
     spatialShip = null;
@@ -69,6 +72,7 @@ function create() {
     bonus = null;
     waitShoot = waitShootStart;
     speedShoot = speedShootStart;
+
     // set the bounds
     this.physics.world.setBoundsCollision(true, true, true, true);
 
@@ -221,21 +225,25 @@ function ColliderBetweenBonusAndBound(){
 
 // when an ennemy touch the down bound
 function ColliderBetweenEnnemyAndBound(){
+    var isGameOver = false;
     // if an ennemy touch the bound
     ennemies.children.iterate(function (el) {
         if (el.y >= height - 10) {
-            // game over
-            GameOver();
+            isGameOver = true;
         }
     });
 
     // if an ennemy bonus touch the bound
     ennemiesBonus.children.iterate(function (el) {
         if (el.y >= height - 10) {
-            // game over
-            GameOver();
+            isGameOver = true;
         }
     });
+
+    if (isGameOver) {
+        // game over
+        GameOver();
+    }
 }
 
 //if a shoot touch an ennemy
@@ -307,8 +315,78 @@ function GameOver() {
     // disable the spatial ship
     spatialShip.disableBody(true,true);
 
+    AddScore();
+
     // if click on the restart image, restart the game
     instance.input.on('gameobjectdown', function(){instance.scene.restart();});
+}
+
+function AddScore(){
+    var endGame = new Date().getTime();
+
+    // get total seconds between the times
+    var delta = Math.abs(endGame - startGame) / 1000;
+
+    // calculate (and subtract) whole days
+    var days = Math.floor(delta / 86400);
+    delta -= days * 86400;
+
+    // calculate (and subtract) whole hours
+    var hours = Math.floor(delta / 3600) % 24;
+    delta -= hours * 3600;
+
+    // calculate (and subtract) whole minutes
+    var minutes = Math.floor(delta / 60) % 60;
+    delta -= minutes * 60;
+
+    // what's left is seconds
+    var seconds = delta % 60;  // in theory the modulus is not required
+
+    var person = prompt("Please enter your name", "Anonyme");
+
+    if (person == null || person == "") {
+        person = "Anonyme"
+    }
+
+    var timePlay = "";
+    if (hours != 0) {
+        timePlay += hours+"h ";
+    }
+    if (minutes != 0) {
+        timePlay += minutes+"m ";
+    }
+    timePlay += seconds+"s ";
+
+    scores.push([person,timePlay,score]);
+
+    $( "#displayScore" ).remove();
+
+    var tbody = '<tbody id="displayScore"></tbody>';
+    
+    $("#scores").append(tbody);
+
+    var result = "";
+    scores.sort(SortPlayersScore);
+    scores.forEach(element => {
+        result += '<tr>';
+        element.forEach(col => {
+            result += '<td>'+col+'</td>';
+        });
+        result += '</tr>';
+    });
+    $("#displayScore").append(result);
+}
+
+function SortPlayersScore(a,b){
+    if (parseInt(a[2]) === parseInt(b[2])) {
+        if(parseInt(a[1]) === parseInt(b[1])){
+            return 0;
+        }
+        return (parseInt(a[1]) < parseInt(b[1])) ? -1 : 1;
+    }
+    else {
+        return (parseInt(a[2]) > parseInt(b[2])) ? -1 : 1;
+    }
 }
 
 // when the ship shoot
