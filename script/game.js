@@ -339,28 +339,37 @@ function GameOver() {
     instance.input.on('gameobjectdown', function(){instance.scene.restart();});
 }
 
+// add the score to database and display it
 function AddScore(){
-    
+    // get the person who play
     var person = GetPerson();
 
+    // get the time that the person play
     var timePlay = GetTimePlay();
 
+    // add the score of the person to the database
     AddData(person,timePlay,score);
 
+    // read all the score of the database
     ReadData();
 }
 
+// get the person who play
 function GetPerson(){
+    // create a prompt asking the name of the person
     var person = prompt("Please enter your name", "Anonyme");
 
+    // if the person has not enter a name
     if (person == null || person == "") {
-        person = "Anonyme"
+        person = "Anonymous"
     }
 
     return person;
 }
 
+// get the time that the person play
 function GetTimePlay(){
+    // get when the person loose
     var endGame = new Date().getTime();
 
     // get total seconds between the times
@@ -379,8 +388,9 @@ function GetTimePlay(){
     delta -= minutes * 60;
 
     // what's left is seconds
-    var seconds = parseInt(delta % 60);  // in theory the modulus is not required
+    var seconds = parseInt(delta % 60); 
 
+    // create the string to send to database
     var timePlay = "";
     if (hours != 0) {
         timePlay += hours+"h ";
@@ -393,7 +403,9 @@ function GetTimePlay(){
     return timePlay;
 }
 
+// add the score of the person to the database
 function AddData(person,timePlay,score){
+    // send the data to database
     db.collection("scores").add({
         name: person,
         timePlay: timePlay,
@@ -407,14 +419,17 @@ function AddData(person,timePlay,score){
     });
 }
 
+// read all the score of the database and display it
 function ReadData(){
+    // remove the tbody already existing
     $( "#displayScore" ).remove();
 
+    // create a new tbody empty
     var tbody = '<tbody id="displayScore"></tbody>';
-    
     $("#scores").append(tbody);
     
     var count = 1;
+    // read all the data of database and display it in the tbody
     db.collection("scores").orderBy("score", "desc").get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             if(doc != null){
@@ -429,7 +444,6 @@ function ReadData(){
                 count++;
                 $("#displayScore").append(result);
             }
-            
         });
     });
 }
