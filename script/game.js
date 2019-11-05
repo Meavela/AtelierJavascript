@@ -48,9 +48,11 @@ var speedShoot = speedShootStart;
 var waitShootStart = 700;
 var waitShoot = waitShootStart;
 var shoots;
+var shootsBad;
 var numberOfShoots = 1;
 var ennemies;
 var ennemiesBonus;
+var ennemiesBad;
 var genereEnnemies;
 var startShoot = 0;
 var endShoot = 0;
@@ -62,13 +64,17 @@ var instance;
 var bonus;
 var startGame = 0;
 var scores = [];
+var badShootStart = 0;
+var badShootEnd = 0;
 
 // on charge images & sons
 function preload() {
     this.load.image('spatialShip', 'img/spatialShip.png');
     this.load.image('shoot', 'img/shoot.png');
+    this.load.image('shootBad', 'img/shootBad.png');
     this.load.image('ennemy', 'img/ennemy.png');
     this.load.image('ennemyBonus', 'img/ennemyBonus.png');
+    this.load.image('ennemyBad', 'img/ennemyBad.png');
     this.load.image('gameOver', 'img/game_over.png');
     this.load.image('restartGame', 'img/restart.png');
     this.load.image('bonusSpeedShoot', 'img/bonusSpeedShoot.png');
@@ -81,10 +87,13 @@ function create() {
     startGame = new Date().getTime();
     instance = this;
     numberOfShoots = 1;
+    startShoot = 0;
+    badShootStart = 0;
     spatialShip = null;
     speedSpatialShip = 5;
     ennemies = null;
     ennemiesBonus = null;
+    ennemiesBad = null;
     bonus = null;
     waitShoot = waitShootStart;
     speedShoot = speedShootStart;
@@ -111,10 +120,12 @@ function create() {
 
     // create group of shoot
     shoots = this.physics.add.group();
+    shootsBad = this.physics.add.group();
 
     // create group of differents ennemy
     ennemies = instance.physics.add.group();
     ennemiesBonus = instance.physics.add.group();
+    ennemiesBad = instance.physics.add.group();
     bonus = instance.physics.add.group();
 }
 
@@ -166,16 +177,42 @@ function update() {
         // shoot with the spatial ship
         Shooting();
 
+        // bad ennemy shoot
+        BadEnnemyShoot();
+
         //  colliders
         this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
+        this.physics.add.collider(spatialShip, ennemiesBad, GameOver, null, this);
+        this.physics.add.collider(spatialShip, shootsBad, GameOver, null, this);
         this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
+        this.physics.add.collider(shoots, ennemiesBad, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
         ColliderBetweenEnnemyAndBound();
         ColliderBetweenShootAndBound();
         ColliderBetweenBonusAndBound();
     }
+}
+
+function BadEnnemyShoot(){
+    var isExist = false;
+    ennemiesBad.children.iterate(function (el) {
+        isExist = true;
+    });
+    if (isExist) {
+        badShootEnd = new Date().getTime();
+        if (badShootEnd > badShootStart + 2000) {
+            badShootStart = new Date().getTime();
+            ennemiesBad.children.iterate(function (el) {
+                shootsBad.create(el.x, el.y + (30), 'shootBad');
+            });
+            
+            // sprite go to the up
+            shootsBad.setVelocityY(200);
+        }
+    }
+    
 }
 
 // when the ship touch the bonus
@@ -258,6 +295,13 @@ function ColliderBetweenEnnemyAndBound(){
         }
     });
 
+    // if an ennemy bonus touch the bound
+    ennemiesBad.children.iterate(function (el) {
+        if (el.y >= height - 10) {
+            isGameOver = true;
+        }
+    });
+
     if (isGameOver) {
         // game over
         GameOver();
@@ -283,13 +327,20 @@ function GainPoint(shoot,ennemy) {
             default:
                 break;
         }
+        // add bad ennemy
+        ennemiesBad.create(ennemy.x, ennemy.y, 'ennemyBad');
+        ennemiesBad.setVelocityY(40);
+
         // bonus go down
         bonus.setVelocityY(400);
 
         // add 2 to the score
         score += 2;
+    }else if(ennemy.texture.key == "ennemyBad"){
+        // add 3 to the score
+        score += 3;
     }else{
-        // add 1 to the score
+        // add 3 to the score
         score += 1;
     }
 
@@ -324,10 +375,21 @@ function GameOver() {
     ennemiesBonus.children.iterate(function (el) {
         el.disableBody(true,true);
     });
+    ennemiesBad.children.iterate(function (el) {
+        el.disableBody(true,true);
+    });
 
     // disable all Bonus
     bonus.children.iterate(function (bo) {
         bo.disableBody(true,true);
+    });
+
+    //disable all shoots
+    shoots.children.iterate(function(sh){
+        sh.disableBody(true,true);
+    });
+    shootsBad.children.iterate(function(sh){
+        sh.disableBody(true,true);
     });
 
     // disable the spatial ship
