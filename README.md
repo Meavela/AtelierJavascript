@@ -11,7 +11,7 @@
 
 ## Les éléments du jeu
 
-### Les ennemies
+### Les ennemis
 
 * L'ennemi "normal"
 * L'ennemi "bonus" (fait apparaître un bonus)
