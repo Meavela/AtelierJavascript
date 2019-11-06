@@ -63,7 +63,6 @@ var restartGame;
 var instance;
 var bonus;
 var startGame = 0;
-var scores = [];
 var badShootStart = 0;
 var badShootEnd = 0;
 
@@ -84,6 +83,7 @@ function preload() {
 
 // initialisation variables, affichages...
 function create() {
+    //initialize variables
     startGame = new Date().getTime();
     instance = this;
     numberOfShoots = 1;
@@ -98,6 +98,7 @@ function create() {
     waitShoot = waitShootStart;
     speedShoot = speedShootStart;
 
+    // display all the score of the database
     ReadData();
 
     // set the bounds
@@ -118,11 +119,11 @@ function create() {
     score = 0;
     scoreText = this.add.text(20, 20, score, style);
 
-    // create group of shoot
+    // create group of differents shoots
     shoots = this.physics.add.group();
     shootsBad = this.physics.add.group();
 
-    // create group of differents ennemy
+    // create group of differents ennemies
     ennemies = instance.physics.add.group();
     ennemiesBonus = instance.physics.add.group();
     ennemiesBad = instance.physics.add.group();
@@ -130,33 +131,32 @@ function create() {
 }
 
 // add row of ennemies x times
-function AddEnnemy(){
+function AddEnnemy() {
     genereEnnemies = instance.time.addEvent({
-        delay:3000,
+        delay: 3000,
         callback: newRowOfEnnemies,
         callbackScope: instance,
         loop: true
     });
 }
 
-// create X ennemies
-function newRowOfEnnemies(){
-    if(spatialShip.alive){
+// create X ennemies while it's not endgame
+function newRowOfEnnemies() {
+    if (spatialShip.alive) {
         // check number of ennemies bonus by row
-        var bonus = Phaser.Math.Between(1,6);
         var elementBonus = new Array(bonus);
-        for (let index = 0; index < bonus; index++) {
-            elementBonus.push(Phaser.Math.Between(1,6));
+        for (let index = 0; index < Phaser.Math.Between(1, 6); index++) {
+            elementBonus.push(Phaser.Math.Between(1, 6));
         }
 
         for (let i = 0; i < 6; i++) {
             // if the cell correspond to a bonusEnnemy
-            if(elementBonus.includes(i)){
+            if (elementBonus.includes(i)) {
                 // add an ennemy bonus
-                ennemiesBonus.create(170+(50*i), 50, 'ennemyBonus');
-            }else{
+                ennemiesBonus.create(170 + (50 * i), 50, 'ennemyBonus');
+            } else {
                 // add an ennemy
-                ennemies.create(170+(50*i), 50, 'ennemy');
+                ennemies.create(170 + (50 * i), 50, 'ennemy');
             }
         }
 
@@ -164,7 +164,7 @@ function newRowOfEnnemies(){
         ennemies.setVelocityY(40);
         ennemiesBonus.setVelocityY(40);
     }
-    
+
 }
 
 // boucle principale du jeu
@@ -185,18 +185,18 @@ function update() {
         this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBad, GameOver, null, this);
-        
+
         // between shoot ennemies and spatial ship
         this.physics.add.collider(spatialShip, shootsBad, GameOver, null, this);
-        
+
         // between spatial ship and bonus
         this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
-        
+
         // between spatial ship shoot and ennemies
         this.physics.add.collider(shoots, ennemiesBad, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
-        
+
         // between bounds and ennemies/shoot/bonus
         ColliderBetweenEnnemyAndBound();
         ColliderBetweenShootAndBound();
@@ -205,7 +205,7 @@ function update() {
 }
 
 // when a bad ennemy shoot
-function BadEnnemyShoot(){
+function BadEnnemyShoot() {
     //check if a bad ennemy exist
     var isExist = false;
     ennemiesBad.children.iterate(function (el) {
@@ -223,16 +223,16 @@ function BadEnnemyShoot(){
             ennemiesBad.children.iterate(function (el) {
                 shootsBad.create(el.x, el.y + (30), 'shootBad');
             });
-            
+
             // sprite go to the down
             shootsBad.setVelocityY(200);
         }
     }
-    
+
 }
 
 // when the ship touch the bonus
-function GainBonus(ship,bonus){
+function GainBonus(ship, bonus) {
     ship.setVelocityY(0);
 
     // get which bonus is touch
@@ -253,54 +253,54 @@ function GainBonus(ship,bonus){
 }
 
 // when the bonus is a speed shoot
-function BonusSpeedShoot(){
-    speedShoot = speedShoot+200;
-    if(speedShoot == speedShootStart+500 && waitShoot != 500){
-        waitShoot = waitShoot-200;
+function BonusSpeedShoot() {
+    speedShoot = speedShoot + 200;
+    if (speedShoot == speedShootStart + 500 && waitShoot != 500) {
+        waitShoot = waitShoot - 200;
     }
 }
 
 // when the bonus is an add shoot
-function BonusAddShoot(){
+function BonusAddShoot() {
     if (numberOfShoots < 4) {
         numberOfShoots += 1;
     }
 }
 
 // when the bonus is a speed ship
-function BonusSpeedShip(){
+function BonusSpeedShip() {
     speedSpatialShip += 1;
 }
 
 // when a shoot touch the up bound
-function ColliderBetweenShootAndBound(){
+function ColliderBetweenShootAndBound() {
     // if the shoot touch the bound
-    shoots.children.iterate(function(sh){
+    shoots.children.iterate(function (sh) {
         if (sh != undefined) {
             if (sh.y <= 10) {
                 // disable the shoot
                 sh.destroy();
             }
         }
-        
+
     });
 
     // if the shoot touch the bound
-    shootsBad.children.iterate(function(sh){
+    shootsBad.children.iterate(function (sh) {
         if (sh != undefined) {
-            if (sh.y >= height-10) {
+            if (sh.y >= height - 10) {
                 // disable the shoot
                 sh.destroy();
             }
         }
-        
+
     });
 }
 
 // when a bonus touch the down bound
-function ColliderBetweenBonusAndBound(){
+function ColliderBetweenBonusAndBound() {
     // if the bonus touch the bound
-    bonus.children.iterate(function(bo){
+    bonus.children.iterate(function (bo) {
         if (bo != undefined) {
             if (bo.y >= height - 10) {
                 // disable the bonus
@@ -311,7 +311,7 @@ function ColliderBetweenBonusAndBound(){
 }
 
 // when an ennemy touch the down bound
-function ColliderBetweenEnnemyAndBound(){
+function ColliderBetweenEnnemyAndBound() {
 
     var isGameOver = false;
 
@@ -343,13 +343,13 @@ function ColliderBetweenEnnemyAndBound(){
 }
 
 //if a shoot touch an ennemy
-function GainPoint(shoot,ennemy) {
+function GainPoint(shoot, ennemy) {
 
     // if it's an ennemy bonus which is touch
-    if(ennemy.texture.key == "ennemyBonus"){
+    if (ennemy.texture.key == "ennemyBonus") {
 
         // get randomly the bonus choose
-        var random = Phaser.Math.Between(1,3);
+        var random = Phaser.Math.Between(1, 3);
         switch (random) {
             case 1:
                 bonus.create(ennemy.x, ennemy.y, 'bonusSpeedShoot');
@@ -374,10 +374,10 @@ function GainPoint(shoot,ennemy) {
         // add 2 to the score
         score += 2;
 
-    }else if(ennemy.texture.key == "ennemyBad"){
+    } else if (ennemy.texture.key == "ennemyBad") {
         // add 3 to the score
         score += 3;
-    }else{
+    } else {
         // add 3 to the score
         score += 1;
     }
@@ -387,28 +387,28 @@ function GainPoint(shoot,ennemy) {
     ennemy.destroy();
 
     // set the score
-    scoreText.setText(score);      
+    scoreText.setText(score);
 }
 
 // check if the ship touch an ennemy
 function GameOver() {
     // add the image gameover
     gameOver = instance.physics.add.sprite(300, 200, 'gameOver');
-    
+
     // add the image restart
     restartGame = instance.physics.add.sprite(300, 450, 'restartGame');
     restartGame.setInteractive();
-    
+
     // block the movements of the spatial ship
     spatialShip.alive = false;
-    
+
     // display the score
-    let style={font: 'bold 30px Arial', fill: '#0000ff'};
-    scoreText = instance.add.text(230, 320, "SCORE : "+score, style);
+    let style = { font: 'bold 30px Arial', fill: '#0000ff' };
+    scoreText = instance.add.text(230, 320, "SCORE : " + score, style);
 
     // disable all ennemies
     ennemies.children.iterate(function (el) {
-        el.disableBody(true,true);
+        el.disableBody(true, true);
     });
     ennemies.children.iterate(function (el) {
         if (el != undefined) {
@@ -416,7 +416,7 @@ function GameOver() {
         }
     });
     ennemiesBonus.children.iterate(function (el) {
-        el.disableBody(true,true);
+        el.disableBody(true, true);
     });
     ennemiesBonus.children.iterate(function (el) {
         if (el != undefined) {
@@ -424,7 +424,7 @@ function GameOver() {
         }
     });
     ennemiesBad.children.iterate(function (el) {
-        el.disableBody(true,true);
+        el.disableBody(true, true);
     });
     ennemiesBad.children.iterate(function (el) {
         if (el != undefined) {
@@ -434,7 +434,7 @@ function GameOver() {
 
     // disable all Bonus
     bonus.children.iterate(function (bo) {
-        bo.disableBody(true,true);
+        bo.disableBody(true, true);
     });
     bonus.children.iterate(function (bo) {
         if (bo != undefined) {
@@ -443,18 +443,18 @@ function GameOver() {
     });
 
     //disable all shoots
-    shoots.children.iterate(function(sh){
-        sh.disableBody(true,true);
+    shoots.children.iterate(function (sh) {
+        sh.disableBody(true, true);
     });
-    shoots.children.iterate(function(sh){
+    shoots.children.iterate(function (sh) {
         if (sh != undefined) {
             sh.destroy();
         }
     });
-    shootsBad.children.iterate(function(sh){
-        sh.disableBody(true,true);
+    shootsBad.children.iterate(function (sh) {
+        sh.disableBody(true, true);
     });
-    shootsBad.children.iterate(function(sh){
+    shootsBad.children.iterate(function (sh) {
         if (sh != undefined) {
             sh.destroy();
         }
@@ -466,11 +466,11 @@ function GameOver() {
     AddScore();
 
     // if click on the restart image, restart the game
-    instance.input.on('gameobjectdown', function(){instance.scene.restart();});
+    instance.input.on('gameobjectdown', function () { instance.scene.restart(); });
 }
 
 // add the score to database and display it
-function AddScore(){
+function AddScore() {
     // get the person who play
     var person = GetPerson();
 
@@ -478,14 +478,14 @@ function AddScore(){
     var timePlay = GetTimePlay();
 
     // add the score of the person to the database
-    AddData(person,timePlay,score);
+    AddData(person, timePlay, score);
 
     // read all the score of the database
     ReadData();
 }
 
 // get the person who play
-function GetPerson(){
+function GetPerson() {
     // create a prompt asking the name of the person
     var person = prompt("Please enter your name", "Anonymous");
 
@@ -498,7 +498,7 @@ function GetPerson(){
 }
 
 // get the time that the person play
-function GetTimePlay(){
+function GetTimePlay() {
     // get when the person loose
     var endGame = new Date().getTime();
 
@@ -518,59 +518,59 @@ function GetTimePlay(){
     delta -= minutes * 60;
 
     // what's left is seconds
-    var seconds = parseInt(delta % 60); 
+    var seconds = parseInt(delta % 60);
 
     // create the string to send to database
     var timePlay = "";
     if (hours != 0) {
-        timePlay += hours+"h ";
+        timePlay += hours + "h ";
     }
     if (minutes != 0) {
-        timePlay += minutes+"m ";
+        timePlay += minutes + "m ";
     }
-    timePlay += seconds+"s ";
+    timePlay += seconds + "s ";
 
     return timePlay;
 }
 
 // add the score of the person to the database
-function AddData(person,timePlay,score){
+function AddData(person, timePlay, score) {
     // send the data to database
     db.collection("scores").add({
         name: person,
         timePlay: timePlay,
         score: score
     })
-    .then(function(docRef) {
-        console.log("Document written with ID: ", docRef.id);
-    })
-    .catch(function(error) {
-        console.error("Error adding document: ", error);
-    });
+        .then(function (docRef) {
+            console.log("Document written with ID: ", docRef.id);
+        })
+        .catch(function (error) {
+            console.error("Error adding document: ", error);
+        });
 }
 
 // read all the score of the database and display it
-function ReadData(){
+function ReadData() {
     // remove the tbody already existing
-    $( "#displayScore" ).remove();
+    $("#displayScore").remove();
 
     // create a new tbody empty
     var tbody = '<tbody id="displayScore"></tbody>';
     $("#scores").append(tbody);
-    
+
     var count = 1;
     // read all the data of database and display it in the tbody
     db.collection("scores").orderBy("score", "desc").get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            if(doc != null){
+            if (doc != null) {
                 var datas = doc.data();
                 var result = "";
-                result += '<tr><th scope="row">'+count+'</th>';
-                result += '<td>'+datas.name+'</td>';
-                result += '<td>'+datas.timePlay+'</td>';
-                result += '<td>'+datas.score+'</td>';
+                result += '<tr><th scope="row">' + count + '</th>';
+                result += '<td>' + datas.name + '</td>';
+                result += '<td>' + datas.timePlay + '</td>';
+                result += '<td>' + datas.score + '</td>';
                 result += '</tr>';
-    
+
                 count++;
                 $("#displayScore").append(result);
             }
@@ -588,7 +588,7 @@ function Shooting() {
             startShoot = new Date().getTime();
             // add a sprite shoot
             for (let i = 0; i < numberOfShoots; i++) {
-                shoots.create(spatialShip.x-(10*i), spatialShip.y - (30), 'shoot');
+                shoots.create(spatialShip.x - (10 * i), spatialShip.y - (30), 'shoot');
             }
             // sprite go to the up
             shoots.setVelocityY(-speedShoot);
@@ -604,6 +604,6 @@ function Move() {
     }
     // if key right is down
     if (cursors.right.isDown) {
-        spatialShip.x += speedSpatialShip;  
+        spatialShip.x += speedSpatialShip;
     }
 }
