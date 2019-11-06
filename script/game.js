@@ -1,7 +1,8 @@
+// Size of the game
 var height = 600;
 var width = 600;
 
-// Your web app's Firebase configuration
+// Firebase configuration
 var firebaseConfig = {
     apiKey: "AIzaSyDUhVjxB27hiHnvRIXsLcOUZLeA5Iw4RUQ",
     authDomain: "atelierjavascript.firebaseapp.com",
@@ -16,6 +17,7 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
+// Config of the game
 var config = {
     width: width,
     height: height,
