@@ -195,7 +195,9 @@ function update() {
     }
 }
 
+// when a bad ennemy shoot
 function BadEnnemyShoot(){
+    //check if a bad ennemy exist
     var isExist = false;
     ennemiesBad.children.iterate(function (el) {
         isExist = true;
@@ -233,7 +235,7 @@ function GainBonus(ship,bonus){
     }
 
     // disable the bonus
-    bonus.disableBody(true,true);
+    bonus.destroy();
 }
 
 // when the bonus is a speed shoot
@@ -260,10 +262,24 @@ function BonusSpeedShip(){
 function ColliderBetweenShootAndBound(){
     // if the shoot touch the bound
     shoots.children.iterate(function(sh){
-        if (sh.y <= 10) {
-            // disable the shoot
-            sh.disableBody(true,true);
+        if (sh != undefined) {
+            if (sh.y <= 10) {
+                // disable the shoot
+                sh.destroy();
+            }
         }
+        
+    });
+
+    // if the shoot touch the bound
+    shootsBad.children.iterate(function(sh){
+        if (sh != undefined) {
+            if (sh.y >= height-10) {
+                // disable the shoot
+                sh.destroy();
+            }
+        }
+        
     });
 }
 
@@ -271,16 +287,20 @@ function ColliderBetweenShootAndBound(){
 function ColliderBetweenBonusAndBound(){
     // if the bonus touch the bound
     bonus.children.iterate(function(bo){
-        if (bo.y >= height - 10) {
-            // disable the bonus
-            bo.disableBody(true,true);
+        if (bo != undefined) {
+            if (bo.y >= height - 10) {
+                // disable the bonus
+                bo.destroy();
+            }
         }
     });
 }
 
 // when an ennemy touch the down bound
 function ColliderBetweenEnnemyAndBound(){
+
     var isGameOver = false;
+
     // if an ennemy touch the bound
     ennemies.children.iterate(function (el) {
         if (el.y >= height - 10) {
@@ -310,8 +330,10 @@ function ColliderBetweenEnnemyAndBound(){
 
 //if a shoot touch an ennemy
 function GainPoint(shoot,ennemy) {
+
     // if it's an ennemy bonus which is touch
     if(ennemy.texture.key == "ennemyBonus"){
+
         // get randomly the bonus choose
         var random = Phaser.Math.Between(1,3);
         switch (random) {
@@ -327,6 +349,7 @@ function GainPoint(shoot,ennemy) {
             default:
                 break;
         }
+
         // add bad ennemy
         ennemiesBad.create(ennemy.x, ennemy.y, 'ennemyBad');
         ennemiesBad.setVelocityY(40);
@@ -336,6 +359,7 @@ function GainPoint(shoot,ennemy) {
 
         // add 2 to the score
         score += 2;
+
     }else if(ennemy.texture.key == "ennemyBad"){
         // add 3 to the score
         score += 3;
@@ -345,8 +369,8 @@ function GainPoint(shoot,ennemy) {
     }
 
     // disable shoot and ennemy touch
-    shoot.disableBody(true,true);
-    ennemy.disableBody(true,true);
+    shoot.destroy();
+    ennemy.destroy();
 
     // set the score
     scoreText.setText(score);      
@@ -372,28 +396,58 @@ function GameOver() {
     ennemies.children.iterate(function (el) {
         el.disableBody(true,true);
     });
+    ennemies.children.iterate(function (el) {
+        if (el != undefined) {
+            el.destroy();
+        }
+    });
     ennemiesBonus.children.iterate(function (el) {
         el.disableBody(true,true);
     });
+    ennemiesBonus.children.iterate(function (el) {
+        if (el != undefined) {
+            el.destroy();
+        }
+    });
     ennemiesBad.children.iterate(function (el) {
         el.disableBody(true,true);
+    });
+    ennemiesBad.children.iterate(function (el) {
+        if (el != undefined) {
+            el.destroy();
+        }
     });
 
     // disable all Bonus
     bonus.children.iterate(function (bo) {
         bo.disableBody(true,true);
     });
+    bonus.children.iterate(function (bo) {
+        if (bo != undefined) {
+            bo.destroy();
+        }
+    });
 
     //disable all shoots
     shoots.children.iterate(function(sh){
         sh.disableBody(true,true);
     });
+    shoots.children.iterate(function(sh){
+        if (sh != undefined) {
+            sh.destroy();
+        }
+    });
     shootsBad.children.iterate(function(sh){
         sh.disableBody(true,true);
     });
+    shootsBad.children.iterate(function(sh){
+        if (sh != undefined) {
+            sh.destroy();
+        }
+    });
 
     // disable the spatial ship
-    spatialShip.disableBody(true,true);
+    spatialShip.destroy();
 
     AddScore();
 
@@ -419,7 +473,7 @@ function AddScore(){
 // get the person who play
 function GetPerson(){
     // create a prompt asking the name of the person
-    var person = prompt("Please enter your name", "Anonyme");
+    var person = prompt("Please enter your name", "Anonymous");
 
     // if the person has not enter a name
     if (person == null || person == "") {
