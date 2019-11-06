@@ -471,11 +471,11 @@ function GameOver() {
 
 // add the score to database and display it
 function AddScore() {
-    // get the person who play
-    var person = GetPerson();
-
     // get the time that the person play
     var timePlay = GetTimePlay();
+
+    // get the person who play
+    var person = GetPerson();
 
     // add the score of the person to the database
     AddData(person, timePlay, score);
