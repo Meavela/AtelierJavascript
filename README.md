@@ -13,9 +13,9 @@
 
 ### Les ennemies
 
-* L'ennemie "normal" : rapporte 1 point quand est tué
-* L'ennemie "bonus" : rapporte 2 points quand est tué et fait apparaître un bonus
-*  L'ennemie "dangereux" : rapporte 3 points quand est tué, essaye de tuer et apparaît lorsqu'un ennemie "bonus" est tué
+* L'ennemi "normal"
+* L'ennemi "bonus" (fait apparaître un bonus)
+* L'ennemi "dangereux" (apparaît lorsqu'un ennemi "bonus" est tué)
 
 ### Les bonus
 
@@ -29,11 +29,19 @@ C'est un jeu "infini", le but est d'accumuler des points.
 
 ## Comment perdre ?
 
-* Un ennemie "dangereux" touche le vaisseau grâce à un tir
-* Lors d'une collision entre le vaisseau et un ennemie, quelque soit son type
-* Lorsqu'un ennemie touche la bordure du bas
+* Un ennemi "dangereux" touche le vaisseau grâce à un tir
+* Lors d'une collision entre le vaisseau et un ennemi, quelque soit son type
+* Lorsqu'un ennemi touche la bordure du bas
 
 ## Le score
+
+### Comment gagner des points ?
+
+* L'ennemi "normal" : 1 point
+* L'ennemi "bonus" : 2 points
+* L'ennemi "dangereux" : 3 points
+
+### Affichage du score 
 
 * Pendant la partie, le score est affiché en haut à gauche
 * A la fin de chaque partie, le score est enregistré avec le nom du joueur et est affiché en dessous du jeu. Le classement est effectué en fonction de la personne qui a fait le plus de points. Il est ensuite possible de comparer son classement avec les autres joueurs

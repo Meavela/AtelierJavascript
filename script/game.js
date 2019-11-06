@@ -181,14 +181,23 @@ function update() {
         BadEnnemyShoot();
 
         //  colliders
+        // between ennemies and spatial ship
         this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
         this.physics.add.collider(spatialShip, ennemiesBad, GameOver, null, this);
+        
+        // between shoot ennemies and spatial ship
         this.physics.add.collider(spatialShip, shootsBad, GameOver, null, this);
+        
+        // between spatial ship and bonus
         this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
+        
+        // between spatial ship shoot and ennemies
         this.physics.add.collider(shoots, ennemiesBad, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
+        
+        // between bounds and ennemies/shoot/bonus
         ColliderBetweenEnnemyAndBound();
         ColliderBetweenShootAndBound();
         ColliderBetweenBonusAndBound();
@@ -202,15 +211,20 @@ function BadEnnemyShoot(){
     ennemiesBad.children.iterate(function (el) {
         isExist = true;
     });
+
+    // if a bad ennemy exist
     if (isExist) {
+        // check if the laps time is passed
         badShootEnd = new Date().getTime();
         if (badShootEnd > badShootStart + 2000) {
             badShootStart = new Date().getTime();
+
+            // create a shoot foreach bad ennemy
             ennemiesBad.children.iterate(function (el) {
                 shootsBad.create(el.x, el.y + (30), 'shootBad');
             });
             
-            // sprite go to the up
+            // sprite go to the down
             shootsBad.setVelocityY(200);
         }
     }
