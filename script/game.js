@@ -81,6 +81,9 @@ function preload() {
     this.load.image('bonusSpeedShoot', 'img/bonusSpeedShoot.png');
     this.load.image('bonusSpeedShip', 'img/bonusSpeedShip.png');
     this.load.image('bonusAddShoot', 'img/bonusAddShoot.png');
+
+    this.load.audio('soundShipShoot', 'sound/shipShoot.wav');
+    this.load.audio('soundDestroyEnnemy', 'sound/destroyEnnemy.wav');
 }
 
 // initialisation variables, affichages...
@@ -383,6 +386,8 @@ function GainPoint(shoot, ennemy) {
         // add 3 to the score
         score += 1;
     }
+    instance.sound.play('soundDestroyEnnemy');
+
 
     // disable shoot and ennemy touch
     shoot.destroy();
@@ -591,6 +596,7 @@ function Shooting() {
             // add a sprite shoot
             for (let i = 0; i < numberOfShoots; i++) {
                 shoots.create(spatialShip.x - (10 * i), spatialShip.y - (30), 'shoot');
+                instance.sound.play('soundShipShoot');
             }
             // sprite go to the up
             shoots.setVelocityY(-speedShoot);
