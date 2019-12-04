@@ -85,8 +85,8 @@ function preload() {
     this.load.image('bonusAddShoot', 'img/bonusAddShoot.png');
     this.load.image('heart', 'img/heart.png');
 
-    // this.load.audio('soundShipShoot', 'sound/shipShoot.wav');
-    this.load.audio('soundShipShoot', 'img/shipShoot.wav');
+    this.load.audio('soundShipShoot', 'sound/shipShoot.wav');
+    // this.load.audio('soundShipShoot', 'img/shipShoot.wav');
     this.load.audio('soundDestroyEnnemy', 'sound/destroyEnnemy.wav');
     this.load.audio('soundGainBonus', 'sound/gainBonus.wav');
 }
