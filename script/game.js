@@ -84,6 +84,7 @@ function preload() {
 
     this.load.audio('soundShipShoot', 'sound/shipShoot.wav');
     this.load.audio('soundDestroyEnnemy', 'sound/destroyEnnemy.wav');
+    this.load.audio('soundGainBonus', 'sound/gainBonus.wav');
 }
 
 // initialisation variables, affichages...
@@ -230,7 +231,7 @@ function BadEnnemyShoot() {
             });
 
             // sprite go to the down
-            shootsBad.setVelocityY(200);
+            shootsBad.setVelocityY(400);
         }
     }
 
@@ -252,6 +253,8 @@ function GainBonus(ship, bonus) {
             BonusSpeedShip();
             break;
     }
+
+    instance.sound.play('soundGainBonus');
 
     // disable the bonus
     bonus.destroy();
@@ -374,7 +377,7 @@ function GainPoint(shoot, ennemy) {
         ennemiesBad.setVelocityY(40);
 
         // bonus go down
-        bonus.setVelocityY(400);
+        bonus.setVelocityY(200);
 
         // add 2 to the score
         score += 2;
