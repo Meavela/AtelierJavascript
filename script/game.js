@@ -41,6 +41,7 @@ var config = {
 
 // Variables globales
 var game = new Phaser.Game(config);
+var life = 3;
 var db = firebase.firestore();
 var spatialShip;
 var cursors;
@@ -50,6 +51,7 @@ var speedShoot = speedShootStart;
 var waitShootStart = 700;
 var waitShoot = waitShootStart;
 var shoots;
+var hearts;
 var shootsBad;
 var numberOfShoots = 1;
 var ennemies;
@@ -81,6 +83,7 @@ function preload() {
     this.load.image('bonusSpeedShoot', 'img/bonusSpeedShoot.png');
     this.load.image('bonusSpeedShip', 'img/bonusSpeedShip.png');
     this.load.image('bonusAddShoot', 'img/bonusAddShoot.png');
+    this.load.image('heart', 'img/heart.png');
 
     this.load.audio('soundShipShoot', 'sound/shipShoot.wav');
     this.load.audio('soundDestroyEnnemy', 'sound/destroyEnnemy.wav');
@@ -92,12 +95,14 @@ function create() {
     //initialize variables
     startGame = new Date().getTime();
     instance = this;
+    life = 3;
     numberOfShoots = 1;
     startShoot = 0;
     badShootStart = 0;
     spatialShip = null;
     speedSpatialShip = 5;
     ennemies = null;
+    hearts = null;
     ennemiesBonus = null;
     ennemiesBad = null;
     bonus = null;
@@ -114,6 +119,11 @@ function create() {
     spatialShip = this.physics.add.sprite(300, 500, 'spatialShip').setCollideWorldBounds(true).setBounce(1);;
     spatialShip.alive = true;
 
+    hearts = instance.physics.add.group();
+    for (let index = 1; index <= life; index++) {
+        hearts.create((index*50)+200, (560), 'heart');
+    }
+
     // add X ennemies
     AddEnnemy();
 
@@ -123,7 +133,7 @@ function create() {
     // add score
     let style = { font: '20px Arial', fill: '#fff' };
     score = 0;
-    scoreText = this.add.text(20, 20, score, style);
+    scoreText = this.add.text(550, 20, score, style);
 
     // create group of differents shoots
     shoots = this.physics.add.group();
@@ -175,6 +185,7 @@ function newRowOfEnnemies() {
 
 // boucle principale du jeu
 function update() {
+
     // if is not game over
     if (spatialShip.alive) {
         // move the spatial ship
@@ -188,12 +199,12 @@ function update() {
 
         //  colliders
         // between ennemies and spatial ship
-        this.physics.add.collider(spatialShip, ennemies, GameOver, null, this);
-        this.physics.add.collider(spatialShip, ennemiesBonus, GameOver, null, this);
-        this.physics.add.collider(spatialShip, ennemiesBad, GameOver, null, this);
+        this.physics.add.collider(spatialShip, ennemies, LooseLife, null, this);
+        this.physics.add.collider(spatialShip, ennemiesBonus, LooseLife, null, this);
+        this.physics.add.collider(spatialShip, ennemiesBad, LooseLife, null, this);
 
         // between shoot ennemies and spatial ship
-        this.physics.add.collider(spatialShip, shootsBad, GameOver, null, this);
+        this.physics.add.collider(spatialShip, shootsBad, LooseLife, null, this);
 
         // between spatial ship and bonus
         this.physics.add.collider(spatialShip, bonus, GainBonus, null, this);
@@ -207,6 +218,41 @@ function update() {
         ColliderBetweenEnnemyAndBound();
         ColliderBetweenShootAndBound();
         ColliderBetweenBonusAndBound();
+    }
+}
+
+function LooseLife(ship, elementCollide){
+    life = life-1;
+    if(life == 0){
+        GameOver();
+    }else{
+        ship.setVelocityY(0);
+
+        elementCollide.destroy();
+
+        hearts.children.iterate(function (he) {
+            he.disableBody(true, true);
+        });
+        hearts.children.iterate(function (he) {
+            if (he != undefined) {
+                he.destroy();
+            }
+        });
+        hearts = instance.physics.add.group();
+    }
+
+    switch (life) {
+        case 2:
+            for (let index = 1; index <= life; index++) {
+                hearts.create((index*50)+225, (560), 'heart');
+            }
+            break;
+        case 1:
+            
+            for (let index = 1; index <= life; index++) {
+                hearts.create(300, (560), 'heart');
+            }
+            break;
     }
 }
 
