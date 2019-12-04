@@ -223,23 +223,20 @@ function update() {
 
 function LooseLife(ship, elementCollide){
     life = life-1;
-    if(life == 0){
-        GameOver();
-    }else{
-        ship.setVelocityY(0);
 
-        elementCollide.destroy();
+    ship.setVelocityY(0);
 
-        hearts.children.iterate(function (he) {
-            he.disableBody(true, true);
-        });
-        hearts.children.iterate(function (he) {
-            if (he != undefined) {
-                he.destroy();
-            }
-        });
-        hearts = instance.physics.add.group();
-    }
+    elementCollide.destroy();
+
+    hearts.children.iterate(function (he) {
+        he.disableBody(true, true);
+    });
+    hearts.children.iterate(function (he) {
+        if (he != undefined) {
+            he.destroy();
+        }
+    });
+    hearts = instance.physics.add.group();
 
     switch (life) {
         case 2:
@@ -252,6 +249,9 @@ function LooseLife(ship, elementCollide){
             for (let index = 1; index <= life; index++) {
                 hearts.create(300, (560), 'heart');
             }
+            break;
+        case 0: 
+            GameOver();
             break;
     }
 }
