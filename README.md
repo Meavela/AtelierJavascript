@@ -33,7 +33,8 @@ C'est un jeu "infini", le but est d'accumuler des points.
 * Vous avez 3 vies, vous perdez lorsque vous vous faites toucher 3 fois :
   * Un ennemi "dangereux" touche le vaisseau grâce à un tir
   * Lors d'une collision entre le vaisseau et un ennemi, quelque soit son type
-  * Lorsqu'un ennemi touche la bordure du bas
+* <span style="color:red"><b>Attention !</b></span>
+  * <span style="color:red">Lorsqu'un ennemi touche la bordure du bas, vous perdez toutes vos vies !</span>
 
 ## Le score
 
