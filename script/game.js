@@ -78,6 +78,7 @@ var bonus;
 var startGame = 0;
 var badShootStart = 0;
 var badShootEnd = 0;
+var firstTurn;
 
 function preload(){    
     LoadImage(this);
@@ -87,6 +88,7 @@ function preload(){
 function create() {
     //initialize variables
     startGame = new Date().getTime();
+    firstTurn = true;
     instance = this;
     life = 3;
     numberOfShoots = 1;
@@ -171,10 +173,12 @@ function update() {
         this.physics.add.collider(spatialShip, ennemiesBonus, LooseLife, null, this);
         this.physics.add.collider(spatialShip, ennemiesBad, LooseLife, null, this);
 
-        var bonusToChange = BonusIsCollide(spatialShip, bonus, this,speedShoot,speedShootStart,waitShoot,numberOfShoots,speedSpatialShip);
+        var bonusToChange = BonusIsCollide(firstTurn, spatialShip, bonus, this);
         speedShoot = bonusToChange[0];
-        numberOfShoots = bonusToChange[1];
-        speedSpatialShip = bonusToChange[2];
+        waitShoot = bonusToChange[1];
+        numberOfShoots = bonusToChange[2];
+        speedSpatialShip = bonusToChange[3];
+        firstTurn = bonusToChange[4];
         
         // between spatial ship shoot and ennemies
         this.physics.add.collider(shoots, ennemiesBad, GainPoint, null, this);

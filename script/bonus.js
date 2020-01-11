@@ -1,4 +1,4 @@
-var speedShoot = 400;
+var speedShoot;
 var speedShootStart = 400;
 var waitShoot = 700;
 var numberOfShoots = 1;
@@ -6,13 +6,20 @@ var speedSpatialShip = 5;
 var instance;
 
 // when the ship touch the bonus
-export function BonusIsCollide(spatialShip, bonus, Instance){
-    instance = Instance;
-
+export function BonusIsCollide(firstTurn, spatialShip, bonus, Instance){
+    if (firstTurn == true) {
+        instance = Instance;
+        speedShoot = 400;
+        speedShootStart = 400;
+        waitShoot = 700;
+        numberOfShoots = 1;
+        speedSpatialShip = 5;
+    }
+    
     // between spatial ship and bonus
     Instance.physics.add.collider(spatialShip, bonus, GainBonus, null, Instance);
 
-    return [speedShoot,numberOfShoots,speedSpatialShip];
+    return [speedShoot, waitShoot, numberOfShoots, speedSpatialShip, false];
 }
 
 function GainBonus(ship, bonus) {
