@@ -1,0 +1,11 @@
+{
+    "blanks-around-headings" : false,
+    "no-duplicate-heading" : false,
+    "no-inline-html" : false,
+    "ul-style" : false,
+    "single-title" : false,
+    "blanks-around-lists" : false,
+    "line-length": false,
+    "no-trailing-punctuation": false,
+    "no-bare-urls": false
+}
