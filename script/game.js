@@ -114,6 +114,7 @@ function create() {
     spatialShip = this.physics.add.sprite(300, 500, 'spatialShip').setCollideWorldBounds(true).setBounce(1);;
     spatialShip.alive = true;
 
+    // create the lifes of the player
     hearts = instance.physics.add.group();
     for (let index = 1; index <= life; index++) {
         hearts.create((index*50)+200, (560), 'heart');
@@ -123,6 +124,8 @@ function create() {
     ennemies = instance.physics.add.group();
     ennemiesBonus = instance.physics.add.group();
     ennemiesBad = instance.physics.add.group();
+
+    // create a group of bonus
     bonus = instance.physics.add.group();
 
     // add X ennemies
@@ -144,13 +147,12 @@ function create() {
 
 // boucle principale du jeu
 function update() {
-
     // if is not game over
     if (spatialShip.alive) {
-        // move the spatial ship
+        // check if the player want to move the spatial ship
         Move(cursors,spatialShip,speedSpatialShip);
 
-        // shoot with the spatial ship
+        // check if the player want to shoot with the spatial ship
         var arrayShoot = Shooting(cursors,startShoot,waitShoot,numberOfShoots,spatialShip,shoots,this,speedShoot,endShoot);
         if (arrayShoot != null) {
             if(arrayShoot[0] != null){
@@ -161,7 +163,7 @@ function update() {
             }
         }
 
-        // bad ennemy shoot
+        // check if there is a bad ennemy on the board and if he can shoot
         var arrayEnnemyShoot = BadEnnemyShoot(ennemiesBad,badShootEnd,badShootStart,shootsBad);
         if (arrayEnnemyShoot != null) {
             badShootStart = arrayEnnemyShoot;
@@ -172,21 +174,19 @@ function update() {
         this.physics.add.collider(spatialShip, ennemies, LooseLife, null, this);
         this.physics.add.collider(spatialShip, ennemiesBonus, LooseLife, null, this);
         this.physics.add.collider(spatialShip, ennemiesBad, LooseLife, null, this);
-
+        // between bonus and spatial ship
         var bonusToChange = BonusIsCollide(firstTurn, spatialShip, bonus, this);
         speedShoot = bonusToChange[0];
         waitShoot = bonusToChange[1];
         numberOfShoots = bonusToChange[2];
         speedSpatialShip = bonusToChange[3];
         firstTurn = bonusToChange[4];
-        
         // between spatial ship shoot and ennemies
         this.physics.add.collider(shoots, ennemiesBad, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemiesBonus, GainPoint, null, this);
         this.physics.add.collider(shoots, ennemies, GainPoint, null, this);
         // between shoot ennemies and spatial ship
         this.physics.add.collider(spatialShip, shootsBad, LooseLife, null, this);
-
         // between bounds and ennemies/shoot/bonus
         instance = ColliderBetweenEnnemyAndBound(gameOver,restartGame,spatialShip,scoreText,score,ennemies,ennemiesBonus,ennemiesBad,bonus,shoots,shootsBad,this,height,startGame,db);
         ColliderBetweenShootAndBound(shoots,shootsBad,height);
@@ -195,12 +195,16 @@ function update() {
 }
 
 function LooseLife(ship, elementCollide){
+    // if there is a collision with the ship
     life = life-1;
 
+    // avoid the gravity
     ship.setVelocityY(0);
 
+    // destroy the element who is collide
     elementCollide.destroy();
 
+    // destroy all the hearts
     hearts.children.iterate(function (he) {
         he.disableBody(true, true);
     });
@@ -209,8 +213,9 @@ function LooseLife(ship, elementCollide){
             he.destroy();
         }
     });
-    hearts = this.physics.add.group();
 
+    // then recreate it -1
+    hearts = this.physics.add.group();
     switch (life) {
         case 2:
             for (let index = 1; index <= life; index++) {
@@ -223,6 +228,7 @@ function LooseLife(ship, elementCollide){
                 hearts.create(300, (560), 'heart');
             }
             break;
+        // if there is no life : Game Over
         case 0: 
             instance = GameOver(gameOver,restartGame,spatialShip,scoreText,score,ennemies,ennemiesBonus,ennemiesBad,bonus,shoots,shootsBad,this,startGame,db);
             break;
@@ -268,8 +274,9 @@ function GainPoint(shoot, ennemy) {
         // add 3 to the score
         score += 1;
     }
-    this.sound.play('soundDestroyEnnemy');
 
+    // play the sound
+    this.sound.play('soundDestroyEnnemy');
 
     // disable shoot and ennemy touch
     shoot.destroy();

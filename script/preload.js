@@ -12,14 +12,10 @@ export function LoadImage(instance){
     instance.load.image('bonusSpeedShip', 'img/bonusSpeedShip.png');
     instance.load.image('bonusAddShoot', 'img/bonusAddShoot.png');
     instance.load.image('heart', 'img/heart.png');
-
-    return instance;
 }
 
 export function LoadAudio(instance){
     instance.load.audio('soundShipShoot', 'sound/shipshoot.wav');
     instance.load.audio('soundDestroyEnnemy', 'sound/destroyEnnemy.wav');
     instance.load.audio('soundGainBonus', 'sound/gainBonus.wav');
-
-    return instance;
 }

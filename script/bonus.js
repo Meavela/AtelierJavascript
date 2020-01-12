@@ -7,6 +7,7 @@ var instance;
 
 // when the ship touch the bonus
 export function BonusIsCollide(firstTurn, spatialShip, bonus, Instance){
+    // if it's the first time
     if (firstTurn == true) {
         instance = Instance;
         speedShoot = 400;
